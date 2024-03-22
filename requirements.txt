@@ -1,0 +1,12 @@
+numpy~=1.26.1
+pandas~=2.1.2
+tqdm~=4.65.0
+transformers~=4.33.3
+tree-sitter==0.2.0
+javalang==0.13.0
+ptvsd==4.3.2
+scikit_learn==1.0.2
+tensorboardX==2.4.1
+fire==0.4.0
+tree_hugger==0.10.1
+joblib==1.1.0
