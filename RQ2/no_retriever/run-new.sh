@@ -9,8 +9,8 @@ test_batch_size=4
 result_file_path="./result/NewDataSet/no_retriever_result.txt"
 pred_file_path="./result/NewDataSet/no_retriever_prediction.csv"
 
-CUDA_VISIBLE_DEVICES=0 python run-no-retriever.py \
-    --model_name_or_path ../../codet5-base \
+CUDA_VISIBLE_DEVICES=0 python run_no_retriever.py \
+    --model_name_or_path codet5-base \
     --output_dir=./saved_models/NewDataSet_no_retriever \
     --do_train \
     --do_test \

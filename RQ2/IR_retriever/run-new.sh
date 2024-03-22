@@ -1,17 +1,17 @@
-train_data_file="./dataset/OldDataSet/assert_train_old.csv"
-test_data_file="./dataset/OldDataSet/assert_test_old.csv"
-val_data_file="./dataset/OldDataSet/assert_val_old.csv"
+train_data_file="./dataset/NewDataSet/assert_train_new.csv"
+test_data_file="./dataset/NewDataSet/assert_test_new.csv"
+val_data_file="./dataset/NewDataSet/assert_val_new.csv"
 
 train_batch_size=8
 eval_batch_size=8
 test_batch_size=4
 
-result_file_path="./result/OldDataSet/baseline_result.txt"
-pred_file_path="./result/OldDataSet/baseline_prediction.csv"
+result_file_path="./result/NewDataSet/baseline_result.txt"
+pred_file_path="./result/NewDataSet/baseline_prediction.csv"
 
 CUDA_VISIBLE_DEVICES=0 python codet5_baseline.py \
-    --model_name_or_path ../../codet5-base \
-    --output_dir=./saved_models/OldDataSet \
+    --model_name_or_path codet5-base \
+    --output_dir=./saved_models/NewDataSet \
     --do_train \
     --do_test \
     --do_eval \

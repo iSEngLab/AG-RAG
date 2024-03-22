@@ -17,7 +17,6 @@ __pycache__/
 # C extensions
 *.so
 !evaluator/CodeBLEU/parser/my-languages.so
-!d4j/lib/tree_sitter/my-languages.so
 
 # Distribution / packaging
 .Python
@@ -28,7 +27,6 @@ downloads/
 eggs/
 .eggs/
 lib/
-!d4j/lib
 lib64/
 parts/
 sdist/

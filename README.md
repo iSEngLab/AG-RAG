@@ -33,15 +33,14 @@ tips: torch version may depend on CUDA version, so you should check the version 
 │   ├── CodeBERT
 │   ├── GraphCodeBERT
 │   └── UniXcoder
-├── d4j : The source code to run defects4j in AG-RAG
 ├── dataset.tar.gz : dataset archive
 ├── args_config.py
 ├── evaluator
 ├── model.py
 ├── requirements.txt
-├── run-old.sh
+├── run-old.sh : fine-tuned CodeT5 using AG-RAG in NewDataSet
+└── run-new.sh : fine-tuned CodeT5 using AG-RAG in OldDataSet
 ├── run.py
-└── run.sh
 ```
 
 ## Fine-tuned model and data
@@ -57,10 +56,12 @@ tar -xzcf dataset.tar.gz
 ## Fine-tuned and test CodeT5 to get AG-RAG result
 
 ```bash
-bash run.sh <gpu_ids> <passage_number>
+bash run-new.sh <gpu_ids> <passage_number>
+# -- or OldDataSet --
+bash run-old.sh <gpu_ids> <passage_number>
 ```
 
-> `bash run.sh 0,1 5` will use GPU0 and GPU1 to fine-tuned CodeT5, and during training retriever will retrieve 5 examplars to calculate loss.
+> `bash run-new.sh 0,1 5` will use GPU0 and GPU1 to fine-tuned CodeT5, and during training retriever will retrieve 5 examplars to calculate loss.
 
 ## RQ1
 
@@ -96,8 +97,27 @@ python generate_venn.py
 
 ## RQ2
 
-TODO
+run the commands below to get RQ2 results:
+
+```bash
+# RQ2 contains no_retriever, IR_retriever, pretrained_retriever, finetuned_retriever
+cd RQ2/xxx
+
+bash run-new.sh
+# -- or OldDataSet --
+bash run-old.sh
+```
 
 ## RQ3
 
-TODO
+run the commands below to get RQ3 results:
+
+```bash
+# RQ3 contains CodeBERT, GraphCodeBERT and UniXcoder
+cd RQ3/xxx
+
+bash run-new.sh <gpu_ids> <passage_number>
+# -- or OldDataSet --
+bash run-old.sh <gpu_ids> <passage_number>
+```
+

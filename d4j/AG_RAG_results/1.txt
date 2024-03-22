@@ -1,5 +1,0 @@
-Math/6
-Compress/9
-Math/102
-Jsoup/4
-Compress/34
