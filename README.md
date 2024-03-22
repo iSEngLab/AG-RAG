@@ -1,8 +1,8 @@
-# Two Birds with One Stone: Improving Retrieval-AugmentedDeep Assertion Generation via Joint Optimization
+# Two Birds with One Stone: Improving Retrieval-Augmented Deep Assertion Generation via Joint Optimization
 
 This is the official PyTorch implementation for the following ISSTA 2024 submission:
 
-Title: Two Birds with One Stone: Improving Retrieval-AugmentedDeep Assertion Generation via Joint Optimization
+Title: Two Birds with One Stone: Improving Retrieval-Augmented Deep Assertion Generation via Joint Optimization
 
 ## Environment Setup
 
