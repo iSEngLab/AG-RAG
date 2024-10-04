@@ -90,10 +90,10 @@ def convert_examples_to_features(examples: List[Example], tokenizer: PreTrainedT
         # source
         source_str = example.source
         source_tokens = tokenizer.tokenize(source_str)
-        source_ids = tokenizer.convert_tokens_to_ids(source_tokens[:args.code_length])
-        query_tokens = [tokenizer.cls_token] + source_tokens[:args.code_length - 2] + [tokenizer.eos_token]
+        source_ids = tokenizer.convert_tokens_to_ids(source_tokens[:args.query_length])
+        query_tokens = [tokenizer.cls_token] + source_tokens[:args.query_length - 2] + [tokenizer.eos_token]
         query_ids = tokenizer.convert_tokens_to_ids(query_tokens)
-        padding_length = args.code_length - len(query_ids)
+        padding_length = args.query_length - len(query_ids)
         query_ids += [tokenizer.pad_token_id] * padding_length
 
         # target
