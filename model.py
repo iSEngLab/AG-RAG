@@ -249,19 +249,14 @@ class Generator(T5ForConditionalGeneration):
 
         loss = None
         if labels is not None:
-            loss_fct = nn.CrossEntropyLoss(ignore_index=-100)
+            loss_fct = nn.CrossEntropyLoss(ignore_index=-100, reduction="none")
             # move labels to correct device to enable PP
             labels = labels.to(lm_logits.device)
-            loss = None
-            for idx, (logit, label) in enumerate(zip(lm_logits, labels)):
-                _loss = loss_fct(logit.squeeze(), label.squeeze())
-                if score is not None:
-                    _loss = _loss * score[idx]
-
-                if loss is None:
-                    loss = _loss
-                else:
-                    loss += _loss
+            loss_per_sample = loss_fct(lm_logits.view(-1, lm_logits.size(-1)), labels.view(-1))
+            score_expanded = score.view(-1, 1).expand(-1, lm_logits.size(1)).contiguous().view(-1)
+            weighted_loss = loss_per_sample * score_expanded
+            # 加权平均的损失
+            loss = weighted_loss.mean()
 
         if not return_dict:
             output = (lm_logits,) + decoder_outputs[1:] + encoder_outputs

@@ -101,7 +101,7 @@ def convert_examples_to_features(examples: List[Example], tokenizer: PreTrainedT
             target_tokens = tokenizer.tokenize("None")
         else:
             target_str = example.target
-            target_tokens = tokenizer.tokenize(target_str)[:args.nl_length]
+            target_tokens = tokenizer.tokenize(target_str)
         target_ids = tokenizer.convert_tokens_to_ids(target_tokens)
 
         features.append(
@@ -360,8 +360,71 @@ def main():
                         f1.write(str(gold.idx) + '\t' + gold.target + '\n')
 
                 dev_bleu = calc_bleu(refs, predictions)
+                em = [int(ref == prediction) for ref, prediction in zip(refs, predictions)]
+                logger.info(" ******** Eval Result *******")
+                logger.info("  %s = %s " % ("loss", str(round(losses[-1], 5))))
+                logger.info("  %s = %s " % ("em", str(sum(em) / len(em))))
                 logger.info("  %s = %s " % ("bleu-4", str(dev_bleu)))
                 logger.info("  " + "*" * 20)
+
+                # Test at each epoch
+                train_examples = read_examples(args.train_filename)
+                train_features = convert_examples_to_features(train_examples, tokenizer, args)
+                train_dataset = MyDataset(train_features)
+                index = train_dataset.build_index(retriever, args)
+
+                test_examples = read_examples(args.test_filename)
+                test_features = convert_examples_to_features(test_examples, tokenizer, args, stage='test')
+                test_data = MyDataset(test_features)
+
+                test_sampler = SequentialSampler(test_data)
+                test_dataloader = DataLoader(test_data, sampler=test_sampler, batch_size=args.test_batch_size,
+                                             collate_fn=do_nothing_collator)
+
+                logger.info("***** Running Testing *****")
+                logger.info("  Num examples = %d", len(test_examples))
+                logger.info("  Batch size = %d", args.test_batch_size)
+
+                retriever.eval()
+                generator.eval()
+                p = []
+                for batch in tqdm(test_dataloader, total=len(test_dataloader), desc="Running Testing"):
+                    query = [feature.query_ids for feature in batch]
+                    query = torch.tensor(query, dtype=torch.long).to(device)
+                    query_vec = retriever(query)
+                    query_vec_cpu = query_vec.detach().cpu().numpy()
+                    i = index.search(query_vec_cpu, 1)
+                    inputs = []
+                    for no, feature in enumerate(batch):
+                        relevant = train_dataset.features[i[no][0]]
+                        inputs.append(cat_to_input(feature.source_ids, relevant.target_ids, relevant.source_ids))
+                    with torch.no_grad():
+                        inputs = torch.tensor(inputs, dtype=torch.long).to(device)
+                        source_mask = inputs.ne(tokenizer.pad_token_id)
+                        preds = generator(inputs,
+                                          attention_mask=source_mask,
+                                          is_generate=True)
+                        top_preds = list(preds.cpu().numpy())
+                        p.extend(top_preds)
+                p = [tokenizer.decode(id, skip_special_tokens=True, clean_up_tokenization_spaces=False) for id in p]
+                generator.train()
+                retriever.train()
+                predictions, refs = [], []
+                with open(args.output_dir + "/test.output", 'w') as f, open(args.output_dir + "/test.gold", 'w') as f1:
+                    for pred, gold in zip(p, test_examples):
+                        predictions.append(pred.strip())
+                        refs.append([gold.target.strip()])
+                        f.write(str(gold.idx) + '\t' + pred + '\n')
+                        f1.write(str(gold.idx) + '\t' + gold.target + '\n')
+
+                refs = [x for ref in refs for x in ref]
+                match = [int(pred == ref) for pred, ref in zip(predictions, refs)]
+                test_bleu_score = calc_bleu(refs, predictions)
+                logger.info(" ******** Test Result *******")
+                logger.info("  %s = %s " % ("em: ", str(sum(match) / len(predictions))))
+                logger.info("  %s = %s " % ("bleu-4", str(test_bleu_score)))
+                logger.info("  " + "*" * 20)
+
                 # Save best bleu retriever and generator
                 if dev_bleu > best_bleu:
                     logger.info("  Best bleu:%s", dev_bleu)
@@ -454,12 +517,11 @@ def main():
                 f.write(str(gold.idx) + '\t' + pred + '\n')
                 f1.write(str(gold.idx) + '\t' + gold.target + '\n')
 
-        test_bleu_score = calc_bleu(refs, predictions)
-        logger.info("  %s = %s " % ("BLEU-4", str(test_bleu_score)))
-        logger.info("  " + "*" * 20)
         refs = [x for ref in refs for x in ref]
         match = [int(pred == ref) for pred, ref in zip(predictions, refs)]
-        logger.info("  %s = %s " % ("Accuracy: ", str(sum(match) / len(predictions))))
+        test_bleu_score = calc_bleu(refs, predictions)
+        logger.info("  %s = %s " % ("em: ", str(sum(match) / len(predictions))))
+        logger.info("  %s = %s " % ("bleu-4", str(test_bleu_score)))
         logger.info("  " + "*" * 20)
 
 
