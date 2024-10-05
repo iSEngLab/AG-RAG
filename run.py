@@ -410,7 +410,7 @@ def main():
                 generator.train()
                 retriever.train()
                 predictions, refs = [], []
-                with open(args.output_dir + "/test.output", 'w') as f, open(args.output_dir + "/test.gold", 'w') as f1:
+                with open(args.output_dir + f"/test_{epoch}.output", 'w') as f, open(args.output_dir + f"/test_{epoch}.gold", 'w') as f1:
                     for pred, gold in zip(p, test_examples):
                         predictions.append(pred.strip())
                         refs.append([gold.target.strip()])
