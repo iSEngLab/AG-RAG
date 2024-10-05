@@ -26,6 +26,7 @@ python run.py \
 	--model_name_or_path ./codet5-base \
 	--train_filename dataset/OldDataSet/assert_train_old.csv \
 	--dev_filename dataset/OldDataSet/assert_val_old.csv \
+	--test_filename dataset/OldDataSet/assert_test_old.csv \
 	--output_dir saved_models/OldDataSet_${number} \
 	--max_source_length 512 \
 	--max_target_length 64 \
@@ -33,10 +34,12 @@ python run.py \
 	--beam_size 10 \
 	--train_batch_size 8 \
 	--eval_batch_size 8 \
+	--test_batch_size 8 \
 	--learning_rate 5e-5 \
 	--gradient_accumulation_steps 4 \
 	--num_train_epochs 10 \
 	--passage_number $number \
+	--beam_size 10 \
 	--GPU_ids $1
 result $? "Training failed!"
 

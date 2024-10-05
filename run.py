@@ -353,15 +353,15 @@ def main():
                 predictions, refs = [], []
                 with open(args.output_dir + f"/dev_{epoch}.output", 'w') as f, open(
                         args.output_dir + f"/dev_{epoch}.gold", 'w') as f1:
-                    for ref, gold in zip(p, eval_examples):
-                        predictions.append(ref.strip())
+                    for pred, gold in zip(p, eval_examples):
+                        predictions.append(pred.strip())
                         refs.append([gold.target.strip()])
-                        f.write(str(gold.idx) + '\t' + ref + '\n')
+                        f.write(str(gold.idx) + '\t' + pred + '\n')
                         f1.write(str(gold.idx) + '\t' + gold.target + '\n')
 
                 dev_bleu = calc_bleu(refs, predictions)
-                em = [int(ref == prediction) for ref, prediction in zip(refs, predictions)]
-                logger.info(" ******** Eval Result *******")
+                em = [int(ref[0] == prediction) for ref, prediction in zip(refs, predictions)]
+                logger.info("  ******* Eval Result *******")
                 logger.info("  %s = %s " % ("loss", str(round(losses[-1], 5))))
                 logger.info("  %s = %s " % ("em", str(sum(em) / len(em))))
                 logger.info("  %s = %s " % ("bleu-4", str(dev_bleu)))
@@ -417,10 +417,9 @@ def main():
                         f.write(str(gold.idx) + '\t' + pred + '\n')
                         f1.write(str(gold.idx) + '\t' + gold.target + '\n')
 
-                refs = [x for ref in refs for x in ref]
-                match = [int(pred == ref) for pred, ref in zip(predictions, refs)]
+                match = [int(pred == ref[0]) for pred, ref in zip(predictions, refs)]
                 test_bleu_score = calc_bleu(refs, predictions)
-                logger.info(" ******** Test Result *******")
+                logger.info("  ******* Test Result *******")
                 logger.info("  %s = %s " % ("em: ", str(sum(match) / len(predictions))))
                 logger.info("  %s = %s " % ("bleu-4", str(test_bleu_score)))
                 logger.info("  " + "*" * 20)
@@ -517,8 +516,7 @@ def main():
                 f.write(str(gold.idx) + '\t' + pred + '\n')
                 f1.write(str(gold.idx) + '\t' + gold.target + '\n')
 
-        refs = [x for ref in refs for x in ref]
-        match = [int(pred == ref) for pred, ref in zip(predictions, refs)]
+        match = [int(pred == ref[0]) for pred, ref in zip(predictions, refs)]
         test_bleu_score = calc_bleu(refs, predictions)
         logger.info("  %s = %s " % ("em: ", str(sum(match) / len(predictions))))
         logger.info("  %s = %s " % ("bleu-4", str(test_bleu_score)))
