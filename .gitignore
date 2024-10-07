@@ -8,6 +8,7 @@
 
 **/.idea/
 **/saved_models
+**/AG-RAG-Checkpoint
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
