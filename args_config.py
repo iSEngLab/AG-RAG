@@ -9,6 +9,8 @@ def add_args() -> argparse.Namespace:
                         help="Path to pre-trained model: e.g. roberta-base")
     parser.add_argument("--output_dir", default=None, type=str, required=True,
                         help="The output directory where the model predictions and checkpoints will be written.")
+    parser.add_argument("--embedding_type", default="CLS", type=str, required=False,
+                        help="Type of embeddings, support CLS, MEAN and MAX")
 
     # Other parameters
     # checkpoint

@@ -81,7 +81,7 @@ def build_model(args):
 
     # load retriever
     retriever = Retriever.from_pretrained(args.model_name_or_path)
-    retriever._set(tokenizer)
+    retriever._set(tokenizer, args.embedding_type)
     if args.load_retriever_from_checkpoint:
         checkpoint_prefix = f'checkpoint-best-bleu/{args.checkpoint_retriever_name}'
         output_dir = os.path.join(args.output_dir, f"{checkpoint_prefix}")
@@ -279,13 +279,27 @@ class Retriever(T5ForConditionalGeneration):
     def __init__(self, config: T5Config):
         super().__init__(config)
 
-    def _set(self, tokenizer: RobertaTokenizer):
+    def _set(self, tokenizer: RobertaTokenizer, embedding_type: str):
         self.tokenizer = tokenizer
         # block the decoder to save memory
         self.decoder = nn.Linear(2, 1)
+        self.embedding_type = embedding_type
 
     def forward(self, input_ids: Optional[torch.LongTensor] = None):
         attention_mask = input_ids.ne(self.tokenizer.pad_token_id)
         encoder_outputs = self.encoder(input_ids=input_ids, attention_mask=attention_mask)
-        hidden_state = encoder_outputs.last_hidden_state[:, 0, :]
-        return nn.functional.normalize(hidden_state, p=2, dim=1)
+        hidden_states = encoder_outputs.last_hidden_state
+
+        if self.embedding_type == "CLS":
+            last_hidden_state = hidden_states[:, 0, :]
+            return nn.functional.normalize(last_hidden_state, p=2, dim=1)
+
+        if self.embedding_type == "MEAN":
+            mean_pooled = torch.sum(hidden_states * attention_mask.unsqueeze(-1), dim=1) / torch.sum(attention_mask,
+                                                                                                     dim=1,
+                                                                                                     keepdim=True)
+            return torch.nn.functional.normalize(mean_pooled, p=2, dim=1)
+
+        if self.embedding_type == "MAX":
+            max_pooled, _ = torch.max(hidden_states * attention_mask.unsqueeze(-1), dim=1)
+            return torch.nn.functional.normalize(max_pooled, p=2, dim=1)
