@@ -41,7 +41,7 @@ tips: torch version may depend on CUDA version, so you should check the version 
 
 ## Fine-tuned model and data
 
-You can download the model directly through this [link](https://drive.google.com/drive/folders/1u3lCDk-ediE20U0XUHyTEg2ektC-I3Hd?usp=sharing) for testing, or you can use the data given above to train and test yourself.
+You can download the model directly through this [Google Drive Link](https://drive.google.com/drive/folders/1u3lCDk-ediE20U0XUHyTEg2ektC-I3Hd?usp=sharing) for testing, or you can use the data given above to train and test yourself.
 
 Raw data are in dataset.tar.gz, using commands below to unzip dataset:
 
