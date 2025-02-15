@@ -1,4 +1,4 @@
-# Two Birds with One Stone: Improving Retrieval-Augmented Deep Assertion Generation via Joint Optimization
+# Improving Retrieval-Augmented Deep Assertion Generation via Joint Optimization
 
 ## Environment Setup
 
